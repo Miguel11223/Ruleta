@@ -4,7 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>La Ruleta Aleatoria</title>
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+
 <style>
+
+  
   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -362,7 +366,6 @@
       const start = i * slice - Math.PI / 2;
       const end = start + slice;
 
-      // Sector
       ctx.beginPath();
       ctx.moveTo(center, center);
       ctx.arc(center, center, radius, start, end);
@@ -370,12 +373,10 @@
       ctx.fillStyle = colors[i % colors.length];
       ctx.fill();
 
-      // Borde
       ctx.strokeStyle = 'rgba(255,255,255,0.22)';
       ctx.lineWidth = 1.5;
       ctx.stroke();
 
-      // Texto
       ctx.save();
       ctx.translate(center, center);
       ctx.rotate(start + slice / 2);
@@ -385,7 +386,6 @@
       ctx.shadowColor = 'rgba(0,0,0,0.55)';
       ctx.shadowBlur = 3;
 
-      // Acortar nombre si es muy largo cuando hay muchos
       let displayName = name;
       if (names.length > 35 && name.length > 10) {
         displayName = name.substring(0, 9) + '…';
@@ -397,7 +397,6 @@
       ctx.restore();
     });
 
-    // Círculo central
     ctx.beginPath();
     ctx.arc(center, center, 52, 0, 2 * Math.PI);
     ctx.fillStyle = '#111';
@@ -426,7 +425,6 @@
     const total = names.length;
     const sliceDeg = 360 / total;
 
-    // Truco: primeros 3 giros fuerzan el primer nombre actual
     let targetIndex;
     if (spinCount < 3 && total >= 1) {
       targetIndex = 0;
@@ -434,7 +432,6 @@
       targetIndex = Math.floor(Math.random() * total);
     }
 
-    // Cálculo de rotación corregido
     const targetCenter = targetIndex * sliceDeg + sliceDeg / 2;
     const currentMod = ((currentRotation % 360) + 360) % 360;
     let delta = (360 - targetCenter) - currentMod;
@@ -460,7 +457,6 @@
       winnersHistory.push(winner);
       updateHistory();
 
-      // Eliminar ganador
       names.splice(targetIndex, 1);
       namesList.value = names.join('\n');
       drawWheel();
@@ -482,7 +478,6 @@
     const text = namesList.value.trim();
     names = text ? text.split('\n').map(n => n.trim()).filter(n => n) : [];
     
-    // Limitar a 50
     if (names.length > 50) {
       names = names.slice(0, 50);
       namesList.value = names.join('\n');
@@ -525,7 +520,6 @@
     }
   });
 
-  // Inicio vacío para que el usuario pegue sus nombres
   namesList.value = '';
   drawWheel();
 </script>
