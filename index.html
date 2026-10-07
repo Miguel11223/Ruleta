@@ -48,7 +48,7 @@ input{display:block;width:100%;margin-top:6px;padding:12px;border:1px solid var(
 .ok dl{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;text-align:left;max-width:340px;margin:18px auto;font-size:14px}
 .ok dt{color:var(--muted)}.ok dd{margin:0}
 .ok p{color:var(--muted);font-size:14px;max-width:360px;margin:0 auto}
-.ok .btn{display:inline-block;text-decoration:none;margin:4px 0 10px}
+.err{color:var(--brand);font-size:13px;margin:14px 0 0}
 .note{font-size:12px;color:var(--muted);margin-top:20px;text-align:center}
 .sched{display:grid;grid-template-columns:minmax(0,330px) 1fr;gap:28px;align-items:start}
 .cal-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
@@ -94,8 +94,7 @@ input{display:block;width:100%;margin-top:6px;padding:12px;border:1px solid var(
   </main>
 
 <script>
-
-const WHATSAPP="528671644866";
+const CORREO="alesciafdz064@gmail.com";
 /* ========================= */
 const DIV="Acta de matrimonio, acta de nacimiento de los hijos menores de edad y domicilio del cónyuge.";
 const SUB={"Divorcio voluntario":"Ambos cónyuges están de acuerdo","Divorcio incausado":"Lo solicita uno de los cónyuges, sin expresar causa"};
@@ -111,9 +110,23 @@ const DATA={
     "Residencia":"Pasaporte, comprobante de domicilio y documentos según el tipo de residencia."}}
 };
 const fom=()=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth(),1)};
-function waURL(){
-  const m="Hola, quiero agendar una cita en XIMA Asesores.\nNombre: "+S.name+"\nTeléfono: "+(S.phone||"—")+"\nTrámite: "+S.tramite+"\nFecha: "+fmt(parse(S.date))+"\nHora: "+S.time;
-  return "https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(m);
+async function enviar(){
+  const r=await fetch("https://formsubmit.co/ajax/"+CORREO,{
+    method:"POST",
+    headers:{"Content-Type":"application/json","Accept":"application/json"},
+    body:JSON.stringify({
+      _subject:"Nueva solicitud de cita - XIMA Asesores",
+      _template:"table",
+      _captcha:"false",
+      Nombre:S.name,
+      Telefono:S.phone,
+      Tramite:S.tramite,
+      Fecha:fmt(parse(S.date)),
+      Hora:S.time
+    })
+  });
+  const j=await r.json();
+  if(!r.ok||(j.success!=="true"&&j.success!==true))throw new Error(j.message||r.status);
 }
 const S={month:fom(),step:0,area:null,tramite:null,date:null,time:null,name:"",phone:""};
 const panel=document.getElementById('panel'),steps=document.getElementById('steps');
@@ -144,9 +157,9 @@ function render(){
     h+='<div class="slots">'+(S.date?`<h3>${fmt(parse(S.date))}</h3><div class="tl">`+times.map(t=>`<button class="${S.time===t?'sel':''}" data-time="${t}">${t}</button>`).join('')+'</div>':'<div class="empty">Elige un día para ver los horarios</div>')+'</div></div>';
     h+=`<div class="row"><button class="link" data-back>← Atrás</button><button class="btn" data-next ${S.date&&S.time?'':'disabled'}>Continuar</button></div>`;
   }else if(S.step===3){
-    h=`<h2>4. Tus datos</h2><label>Nombre completo<input id="n" value="${esc(S.name)}" autocomplete="name"></label><label>Teléfono (WhatsApp)<input id="p" value="${esc(S.phone)}" inputmode="tel" autocomplete="tel"></label><div class="row"><button class="link" data-back>← Atrás</button><button class="btn" data-next>Confirmar cita</button></div>`;
+    h=`<h2>4. Tus datos</h2><label>Nombre completo<input id="n" value="${esc(S.name)}" autocomplete="name"></label><label>Teléfono<input id="p" value="${esc(S.phone)}" inputmode="tel" autocomplete="tel"></label><p class="err" id="err" hidden>No se pudo enviar. Revisa tu conexión e inténtalo de nuevo.</p><div class="row"><button class="link" data-back>← Atrás</button><button class="btn" data-next>Enviar</button></div>`;
   }else{
-    h=`<div class="ok"><div class="tick">✓</div><h2>¡Solicitud lista!</h2><p>Envíala por WhatsApp para que el despacho confirme tu cita.</p><dl><dt>Nombre</dt><dd>${esc(S.name||'—')}</dd><dt>Teléfono</dt><dd>${esc(S.phone||'—')}</dd><dt>Trámite</dt><dd>${esc(S.tramite)}</dd><dt>Fecha</dt><dd>${fmt(parse(S.date))}</dd><dt>Hora</dt><dd>${S.time}</dd></dl><a class="btn" href="${waURL()}" target="_blank" rel="noopener">Enviar</a><br><button class="link" data-reset>Agendar otra</button></div>`;
+    h=`<div class="ok"><div class="tick">✓</div><h2>¡Solicitud enviada!</h2><p>Recibimos tus datos. Nos pondremos en contacto contigo para confirmar tu cita.</p><dl><dt>Nombre</dt><dd>${esc(S.name)}</dd><dt>Teléfono</dt><dd>${esc(S.phone)}</dd><dt>Trámite</dt><dd>${esc(S.tramite)}</dd><dt>Fecha</dt><dd>${fmt(parse(S.date))}</dd><dt>Hora</dt><dd>${S.time}</dd></dl><button class="link" data-reset>Agendar otra</button></div>`;
   }
   panel.innerHTML=h;
 }
@@ -159,7 +172,18 @@ panel.addEventListener('click',e=>{
   else if(d.m)S.month=new Date(S.month.getFullYear(),S.month.getMonth()+ +d.m,1);
   else if(d.time)S.time=d.time;
   else if('back' in d){saveInputs();S.step--}
-  else if('next' in d){saveInputs();if(S.step===3&&!S.name){const n=document.getElementById('n');n.style.borderColor='var(--brand)';n.focus();return}S.step++}
+  else if('next' in d){
+    saveInputs();
+    if(S.step===3){
+      const n=document.getElementById('n'),p=document.getElementById('p'),er=document.getElementById('err');
+      n.style.borderColor=p.style.borderColor='';er.hidden=true;
+      if(!S.name||!S.phone){if(!S.name)n.style.borderColor='var(--brand)';if(!S.phone)p.style.borderColor='var(--brand)';(S.name?p:n).focus();return}
+      t.disabled=true;t.textContent='Enviando…';
+      enviar().then(()=>{S.step=4;render()}).catch(()=>{t.disabled=false;t.textContent='Enviar';er.hidden=false});
+      return;
+    }
+    S.step++;
+  }
   else if('reset' in d)Object.assign(S,{month:fom(),step:0,area:null,tramite:null,date:null,time:null,name:"",phone:""});
   render();
 });
