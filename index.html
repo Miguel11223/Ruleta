@@ -94,10 +94,7 @@ input{display:block;width:100%;margin-top:6px;padding:12px;border:1px solid var(
   </main>
 
 <script>
-/* ===== CONFIGURACIÓN =====
-   Número de WhatsApp que recibirá las solicitudes de cita.
-   Escríbelo con código de país y sin +, espacios ni guiones.
-   México: 52 + 10 dígitos. Ejemplo: "528672812121" */
+
 const WHATSAPP="528671644866";
 /* ========================= */
 const DIV="Acta de matrimonio, acta de nacimiento de los hijos menores de edad y domicilio del cónyuge.";
@@ -149,7 +146,7 @@ function render(){
   }else if(S.step===3){
     h=`<h2>4. Tus datos</h2><label>Nombre completo<input id="n" value="${esc(S.name)}" autocomplete="name"></label><label>Teléfono (WhatsApp)<input id="p" value="${esc(S.phone)}" inputmode="tel" autocomplete="tel"></label><div class="row"><button class="link" data-back>← Atrás</button><button class="btn" data-next>Confirmar cita</button></div>`;
   }else{
-    h=`<div class="ok"><div class="tick">✓</div><h2>¡Solicitud lista!</h2><p>Envíala por WhatsApp para que el despacho confirme tu cita.</p><dl><dt>Nombre</dt><dd>${esc(S.name||'—')}</dd><dt>Teléfono</dt><dd>${esc(S.phone||'—')}</dd><dt>Trámite</dt><dd>${esc(S.tramite)}</dd><dt>Fecha</dt><dd>${fmt(parse(S.date))}</dd><dt>Hora</dt><dd>${S.time}</dd></dl><a class="btn" href="${waURL()}" target="_blank" rel="noopener">Enviar por WhatsApp</a><br><button class="link" data-reset>Agendar otra</button></div>`;
+    h=`<div class="ok"><div class="tick">✓</div><h2>¡Solicitud lista!</h2><p>Envíala por WhatsApp para que el despacho confirme tu cita.</p><dl><dt>Nombre</dt><dd>${esc(S.name||'—')}</dd><dt>Teléfono</dt><dd>${esc(S.phone||'—')}</dd><dt>Trámite</dt><dd>${esc(S.tramite)}</dd><dt>Fecha</dt><dd>${fmt(parse(S.date))}</dd><dt>Hora</dt><dd>${S.time}</dd></dl><a class="btn" href="${waURL()}" target="_blank" rel="noopener">Enviar</a><br><button class="link" data-reset>Agendar otra</button></div>`;
   }
   panel.innerHTML=h;
 }
